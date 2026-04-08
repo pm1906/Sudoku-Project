@@ -1,39 +1,28 @@
-Program Overview
-
-The program generates valid 9x9 Sudoku puzzles. It uses a pattern-based approach to build the board row by row, then applies simple swaps to make the board look less predictable.Then it prints it neatly.
+The program generates a valid 9x9 Sudoku puzzle using a backtracking algorithm. It fills the board cell by cell by trying numbers 1 through 9 and backtracking when a conflict occurs. Once the board is complete, it then prints it neatly with borders.
 
 Data Structures
+2D Array (sudo) – The 9x9 Sudoku board is stored in a 2D integer array named sudo. Each cell holds a number from 1 to 9. The array allows easy access to any row and column.
 
-2D Array (sudo)
-The 9x9 Sudoku board is stored in a 2D integer array named sudo. Each cell holds a number from 1 to 9. The array allows easy access to any row and column.
-
-I just use an array and not an arraylist. 
-
+I don’t use an ArrayList. 
 
 Algorithm Design
+The program generates a solved Sudoku board using a backtracking algorithm.
 
-The program generates a solved Sudoku board using a row-shifting pattern.
-
-First, it fills the first row with numbers 1 through 9. Then, it fills each subsequent row by shifting the previous row 3 positions to the right, and also wrapping around to the beginning when needed. This pattern automatically satisfies the row, column, and 3x3 box rules of Sudoku.
-
-After the base pattern is created, the program swaps rows within each band of three rows. Specifically, it swaps rows 1 and 2, rows 4 and 5, and rows 7 and 8. Then it swaps columns within each band of three columns, swapping columns 1 and 2, 4 and 5, and 7 and 8. These swaps make the board look more random while satisfying the rules of the game.
-
+First, it starts with an empty 9x9 board filled with zeros. Then it calls the solve method starting at row 0, column 0. The solve method tries numbers 1 through 9 in each empty cell. For each number, it checks if the number is safe to place by verifying the row, column, and 3x3 box have no duplicates. If the number is safe, it places the number and moves to the next cell. If a dead end is reached, it removes the number (backtracks) and tries the next number. The algorithm continues until all 81 cells are filled correctly.
 
 
 Methods
+Constructor: Initializes the 9x9 array and calls fillBoard.
 
-The Board constructor initializes the 9x9 array and calls fillBoard.
+fillBoard: Starts the solving process by calling solve(0, 0).
 
-The fillBoard method builds the Sudoku board using the row-shifting pattern, then calls swapRows and swapCols to add randomness.
+solve: Uses backtracking to fill the board. Takes row and column parameters. Returns true when the board is complete.
 
-The swapRows method takes two row indexes and swaps all the values in those rows.
+isSafe:  Checks if a number can be placed at a given position. Checks the row, column, and 3x3 box for duplicates.
 
-The swapCols method takes two column indexes and swaps all the values in those columns.
-
-The printBoard method prints the Sudoku board to the console with dividers between each 3x3 box for easy reading.
+printBoard:  Prints the Sudoku board to the console with plus, minus, and pipe symbols creating borders between each 3x3 box for easy reading.
 
 Testing Plan
-
 I tested my program using the following methods.
 
 First, I manually checked that each row contains numbers 1 through 9 with no duplicates. I did this by looking at the printed output and scanning each row.
@@ -44,13 +33,12 @@ Third, I manually checked that each 3x3 box contains numbers 1 through 9 with no
 
 Fourth, I ran the program multiple times to ensure the board prints correctly with the dividers in the right places.
 
-The tests passed so it was a valid sudoku. 
+The tests passed so it was a valid Sudoku.
 
 Challenges and Solutions
+One challenge I faced was making sure the backtracking algorithm actually completed the board. At first, my solve method was not correctly moving to the next cell after placing a number.
 
-One challenge I faced was making sure the row-shifting pattern actually created a valid Sudoku board. I wasn't sure why shifting by 3 worked. I tried shifting by other numbers like 1 or 2, but those created duplicate numbers in the same column or box.
-
-To solve this, I tested different shift values on paper. I discovered that shifting by 3 works because the board is 9x9 and each box is 3x3. A shift of 3 moves numbers into a new box entirely, so each box ends up with one of each number. I also learned that shifting by 6 works for the same reason. I chose 3 because it was simple and easy to understand. This taught me how the math behind Sudoku patterns actually works.
+To solve this, I added conditions to skip cells that already have numbers and to move to the next row when reaching the end of a column. I also made sure to return true only when row reaches 9, indicating all rows are filled. After fixing these issues, the algorithm successfully generated a complete valid Sudoku board.
 
 
 Source Code:
@@ -73,78 +61,81 @@ public class MyProgram
 Board.java:
 
 public class Board {
-    private int[][] sudo;
+    private int[][] sudo;  
     
     public Board(){
-        sudo = new int[9][9];
-        fillBoard();
+        sudo = new int[9][9];  
+        fillBoard();  
     }
     
     public void fillBoard(){
-        // Filling the first row with numbers 1-9
-        for (int c = 0; c < 9; c++) {
-            sudo[0][c] = c + 1;
-        }
+        solve(0, 0);  // Start solving from top-left corner
+    }
+    
+    // Try to solve the board using backtracking
+    private boolean solve(int row, int col) {
+        //last row we are done
+        if (row == 9) return true;
         
-        // Filling the rest of the rows by shifting
-        // Each row is the previous row shifted by 3 positions
-        for (int r = 1; r < 9; r++) {
-            for (int c = 0; c < 9; c++) {
-                // Then shift each row by 3 to create a valid pattern
-                int newCol = (c + 3) % 9;
-                sudo[r][newCol] = sudo[r-1][c];
+        // end of a row then go to next row
+        if (col == 9) return solve(row + 1, 0);
+        
+        // Skipp cells with a number in it
+        if (sudo[row][col] != 0) return solve(row, col + 1);
+        
+        // Try numbers 1 through 9
+        for (int num = 1; num <= 9; num++) {
+            if (isSafe(row, col, num)) {  // Check to see if a number can go here
+                sudo[row][col] = num;  // Place the number
+                if (solve(row, col + 1)) return true;  //next cell after placing
+                sudo[row][col] = 0;  // if not valid remove
             }
         }
-        
-        //  Swapiing the rows
-        swapRows(1, 2);
-        swapRows(4, 5);
-        swapRows(7, 8);
-        
-        // Swaping the columns 
-        swapCols(1, 2);
-        swapCols(4, 5);
-        swapCols(7, 8);
+        return false;  // No number worked so go back
     }
     
-    
-    public void swapRows(int row1, int row2) {
-        for (int c = 0; c < 9; c++) {
-            int temp = sudo[row1][c];
-            sudo[row1][c] = sudo[row2][c];
-            sudo[row2][c] = temp;
+    // Checking to see if a number is valid to place at (row, col)
+    private boolean isSafe(int row, int col, int num) {
+        // Check the row
+        for (int i = 0; i < 9; i++) {
+            if (sudo[row][i] == num) return false;
         }
-    }
-    
-    
-    public void swapCols(int col1, int col2) {
-        for (int r = 0; r < 9; r++) {
-            int temp = sudo[r][col1];
-            sudo[r][col1] = sudo[r][col2];
-            sudo[r][col2] = temp;
+        
+        // Check the column
+        for (int i = 0; i < 9; i++) {
+            if (sudo[i][col] == num) return false;
         }
+        
+        // Check the 3x3 box
+        int boxRow = (row / 3) * 3;  // Top row of the box
+        int boxCol = (col / 3) * 3;  // Left column of the box
+        for (int r = boxRow; r < boxRow + 3; r++) {
+            for (int c = boxCol; c < boxCol + 3; c++) {
+                if (sudo[r][c] == num) return false;
+            }
+        }
+        return true;  // Number is safe to place
     }
     
+    // Print the board with borders
     public void printBoard() {
-        System.out.println("═════════════════════════");
+        System.out.println("+-------+-------+-------+");
         for (int r = 0; r < 9; r++) {
-            //  horizontal divider every 3 rows
-            if (r % 3 == 0 && r != 0) {
-                System.out.println("═════════════════════════");
-            }
-            
+            System.out.print("| ");
             for (int c = 0; c < 9; c++) {
-                // vertical divider every 3 columns
-                if (c % 3 == 0) {
-                    System.out.print("║ ");
-                }
                 System.out.print(sudo[r][c] + " ");
+                if ((c + 1) % 3 == 0) {  
+                    System.out.print("| ");
+                }
             }
-            System.out.println("║");
+            System.out.println();
+            if ((r + 1) % 3 == 0) {  
+                System.out.println("+-------+-------+-------+");
+            }
         }
-        System.out.println("═════════════════════════");
     }
 }
+
 
 
 
