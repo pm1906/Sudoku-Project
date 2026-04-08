@@ -1,22 +1,29 @@
-# Sudoku-Project
+# Sudoku Board Generator
 
 Protik Modak
 
-## Description
-Generates and prints a complete, valid 9x9 Sudoku board using a row-shifting pattern.
+## Short Description
+This program generates a complete, valid 9x9 Sudoku puzzle using a backtracking algorithm. It fills the board cell by cell, then prints it neatly with borders.
 
-## How to Run
+## How to Run the Program
 1. Save `Board.java` and `MyProgram.java` in the same folder
-2. Run `javac Board.java MyProgram.java`
-3. Run `java MyProgram`
+2. Open a terminal in that folder
+3. Compile: `javac Board.java MyProgram.java`
+4. Run: `java MyProgram`
 
-## How It Works
-- Row 0: 1 2 3 4 5 6 7 8 9
-- Each new row = previous row shifted right by 3
-- Swap rows (1,2), (4,5), (7,8)
-- Swap columns (1,2), (4,5), (7,8)
-- Prints board with dividers
+## Summary of How the Sudoku Board is Generated
+The program uses a backtracking algorithm:
+- Start with an empty 9x9 board (all zeros)
+- Try numbers 1-9 in each empty cell
+- Check if the number is safe (no duplicates in row, column, or 3x3 box)
+- If safe, place the number and move to the next cell
+- If no number works, backtrack and try a different number
+- Repeat until all 81 cells are filled
 
-## Files
-- `Board.java` – Board class with 2D array, fill, swap, and print methods
-- `MyProgram.java` – Main method to run the program
+This guarantees a valid completed Sudoku board every time.
+
+## Files Included
+- `Board.java` – Contains the Board class with the 2D array, backtracking solve method, safety check, and print method
+- `MyProgram.java` – Contains the main method to run the program
+- `README.md` – This file
+
