@@ -1,73 +1,75 @@
 public class Board {
-    private int[][] sudo;
+    private int[][] sudo;  
     
     public Board(){
-        sudo = new int[9][9];
-        fillBoard();
+        sudo = new int[9][9];  
+        fillBoard();  
     }
     
     public void fillBoard(){
-        // Filling the first row with numbers 1-9
-        for (int c = 0; c < 9; c++) {
-            sudo[0][c] = c + 1;
-        }
+        solve(0, 0);  // Start solving from top-left corner
+    }
+    
+    // Try to solve the board using backtracking
+    private boolean solve(int row, int col) {
+        //last row we are done
+        if (row == 9) return true;
         
-        // Filling the rest of the rows by shifting
-        // Each row is the previous row shifted by 3 positions
-        for (int r = 1; r < 9; r++) {
-            for (int c = 0; c < 9; c++) {
-                // Then shift each row by 3 to create a valid pattern
-                int newCol = (c + 3) % 9;
-                sudo[r][newCol] = sudo[r-1][c];
+        // end of a row then go to next row
+        if (col == 9) return solve(row + 1, 0);
+        
+        // Skipp cells with a number in it
+        if (sudo[row][col] != 0) return solve(row, col + 1);
+        
+        // Try numbers 1 through 9
+        for (int num = 1; num <= 9; num++) {
+            if (isSafe(row, col, num)) {  // Check to see if a number can go here
+                sudo[row][col] = num;  // Place the number
+                if (solve(row, col + 1)) return true;  //next cell after placing
+                sudo[row][col] = 0;  // if not valid remove
             }
         }
-        
-        //  Swapiing the rows
-        swapRows(1, 2);
-        swapRows(4, 5);
-        swapRows(7, 8);
-        
-        // Swaping the columns 
-        swapCols(1, 2);
-        swapCols(4, 5);
-        swapCols(7, 8);
+        return false;  // No number worked so go back
     }
     
-    
-    public void swapRows(int row1, int row2) {
-        for (int c = 0; c < 9; c++) {
-            int temp = sudo[row1][c];
-            sudo[row1][c] = sudo[row2][c];
-            sudo[row2][c] = temp;
+    // Checking to see if a number is valid to place at (row, col)
+    private boolean isSafe(int row, int col, int num) {
+        // Check the row
+        for (int i = 0; i < 9; i++) {
+            if (sudo[row][i] == num) return false;
         }
-    }
-    
-    
-    public void swapCols(int col1, int col2) {
-        for (int r = 0; r < 9; r++) {
-            int temp = sudo[r][col1];
-            sudo[r][col1] = sudo[r][col2];
-            sudo[r][col2] = temp;
+        
+        // Check the column
+        for (int i = 0; i < 9; i++) {
+            if (sudo[i][col] == num) return false;
         }
+        
+        // Check the 3x3 box
+        int boxRow = (row / 3) * 3;  // Top row of the box
+        int boxCol = (col / 3) * 3;  // Left column of the box
+        for (int r = boxRow; r < boxRow + 3; r++) {
+            for (int c = boxCol; c < boxCol + 3; c++) {
+                if (sudo[r][c] == num) return false;
+            }
+        }
+        return true;  // Number is safe to place
     }
     
+    // Print the board with borders
     public void printBoard() {
-        System.out.println("═════════════════════════");
+        System.out.println("+-------+-------+-------+");
         for (int r = 0; r < 9; r++) {
-            //  horizontal divider every 3 rows
-            if (r % 3 == 0 && r != 0) {
-                System.out.println("═════════════════════════");
-            }
-            
+            System.out.print("| ");
             for (int c = 0; c < 9; c++) {
-                // vertical divider every 3 columns
-                if (c % 3 == 0) {
-                    System.out.print("║ ");
-                }
                 System.out.print(sudo[r][c] + " ");
+                if ((c + 1) % 3 == 0) {  
+                    System.out.print("| ");
+                }
             }
-            System.out.println("║");
+            System.out.println();
+            if ((r + 1) % 3 == 0) {  
+                System.out.println("+-------+-------+-------+");
+            }
         }
-        System.out.println("═════════════════════════");
     }
 }
