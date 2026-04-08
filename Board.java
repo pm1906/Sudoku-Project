@@ -11,7 +11,7 @@ public class Board {
     }
     
     // Try to solve the board using backtracking
-    private boolean solve(int row, int col) {
+    public boolean solve(int row, int col) {
         //last row we are done
         if (row == 9) return true;
         
@@ -33,7 +33,7 @@ public class Board {
     }
     
     // Checking to see if a number is valid to place at (row, col)
-    private boolean isSafe(int row, int col, int num) {
+    public boolean isSafe(int row, int col, int num) {
         // Check the row
         for (int i = 0; i < 9; i++) {
             if (sudo[row][i] == num) return false;
