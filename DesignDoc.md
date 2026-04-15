@@ -3,12 +3,14 @@ The program generates a valid 9x9 Sudoku puzzle using a backtracking algorithm. 
 Data Structures
 2D Array (sudo) – The 9x9 Sudoku board is stored in a 2D integer array named sudo. Each cell holds a number from 1 to 9. The array allows easy access to any row and column.
 
+Used Random so I could generate random sudoku boards.
+
 I don’t use an ArrayList. 
 
 Algorithm Design
 The program generates a solved Sudoku board using a backtracking algorithm.
 
-First, it starts with an empty 9x9 board filled with zeros. Then it calls the solve method starting at row 0, column 0. The solve method tries numbers 1 through 9 in each empty cell. For each number, it checks if the number is safe to place by verifying the row, column, and 3x3 box have no duplicates. If the number is safe, it places the number and moves to the next cell. If a dead end is reached, it removes the number (backtracks) and tries the next number. The algorithm continues until all 81 cells are filled correctly.
+First, it starts with an empty 9x9 board filled with zeros. Then it calls the solve method starting at row 0, column 0. The solve method tries numbers 1 through 9 in each empty cell (randomly). For each number, it checks if the number is safe to place by verifying the row, column, and 3x3 box have no duplicates. If the number is safe, it places the number and moves to the next cell. If a dead end is reached, it removes the number (backtracks) and tries the next number. The algorithm continues until all 81 cells are filled correctly.
 
 
 Methods
@@ -51,7 +53,7 @@ public class MyProgram
     {
         Board sudol = new Board();
         
-        sudol.fillBoard();
+
         
         sudol.printBoard();
     }
@@ -60,64 +62,86 @@ public class MyProgram
 
 Board.java:
 
+import java.util.Random;
+
 public class Board {
     private int[][] sudo;  
+    private Random rand; 
     
     public Board(){
         sudo = new int[9][9];  
+        rand = new Random();
         fillBoard();  
     }
     
     public void fillBoard(){
-        solve(0, 0);  // Start solving from top-left corner
+        solve(0, 0);  
     }
     
-    // Try to solve the board using backtracking
-    private boolean solve(int row, int col) {
+    
+    public boolean solve(int row, int col) {
         //last row we are done
-        if (row == 9) return true;
+        if (row == 9){
+            return true;
+        }
         
         // end of a row then go to next row
-        if (col == 9) return solve(row + 1, 0);
+        if (col == 9){
+            return solve(row + 1, 0);
+        }
         
         // Skipp cells with a number in it
-        if (sudo[row][col] != 0) return solve(row, col + 1);
-        
-        // Try numbers 1 through 9
-        for (int num = 1; num <= 9; num++) {
-            if (isSafe(row, col, num)) {  // Check to see if a number can go here
-                sudo[row][col] = num;  // Place the number
-                if (solve(row, col + 1)) return true;  //next cell after placing
-                sudo[row][col] = 0;  // if not valid remove
-            }
+        if (sudo[row][col] != 0){
+            return solve(row, col + 1);
         }
-        return false;  // No number worked so go back
+        
+        
+        
+        
+        for (int randn = 0; randn < 9; randn++) {
+            int num = rand.nextInt(9) + 1;
+            
+            if (isSafe(row, col, num)){
+                sudo[row][col] = num;
+                if (solve(row, col + 1)) return true;
+                sudo[row][col] = 0;
+            }
+            
+        }
+        
+        return false;
     }
     
-    // Checking to see if a number is valid to place at (row, col)
-    private boolean isSafe(int row, int col, int num) {
-        // Check the row
+    
+    public boolean isSafe(int row, int col, int num) {
+        
         for (int i = 0; i < 9; i++) {
-            if (sudo[row][i] == num) return false;
+            if (sudo[row][i] == num) {
+                return false;
+            }
         }
         
-        // Check the column
+        
         for (int i = 0; i < 9; i++) {
-            if (sudo[i][col] == num) return false;
+            if (sudo[i][col] == num){
+                return false;
+            }
         }
         
-        // Check the 3x3 box
-        int boxRow = (row / 3) * 3;  // Top row of the box
-        int boxCol = (col / 3) * 3;  // Left column of the box
+        
+        int boxRow = (row / 3) * 3;  
+        int boxCol = (col / 3) * 3;  
         for (int r = boxRow; r < boxRow + 3; r++) {
             for (int c = boxCol; c < boxCol + 3; c++) {
-                if (sudo[r][c] == num) return false;
+                if (sudo[r][c] == num) {
+                    return false;
+                }
             }
         }
-        return true;  // Number is safe to place
+        return true; 
     }
     
-    // Print the board with borders
+    
     public void printBoard() {
         System.out.println("+-------+-------+-------+");
         for (int r = 0; r < 9; r++) {
@@ -135,6 +159,8 @@ public class Board {
         }
     }
 }
+
+
 
 
 
